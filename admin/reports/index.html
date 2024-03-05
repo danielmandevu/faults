@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html ng-app='reports' ng-cloak>
+    <head>
+        <link href='../../css/tailwind.css' rel='stylesheet' type='text/css'>
+        <link href='../../css/style.css' rel='stylesheet' type='text/css'>
+        <link href='../../css/fontawesome/css/all.min.css' rel='stylesheet' type='text/css'>
+        <script src='../../js/jquery/jquery.min.js'></script>
+        <script src='../../js/jquery/jquery-ui.js'></script>
+        <link href='../../js/jquery/jquery-ui.css' rel='stylesheet' type='text/css'>
+        <script src='../../js/angular/angular.js'></script>
+        <script src='../../js/angular/angular-route.js'></script>
+        <script src='../../js/angular/angular-resource.js'></script>
+        <!-- <script src='../../js/chart.js/Chart.js'></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+        <title>Admin Reports</title>
+        <style>
+            .reports-graph{
+                background-color: #fff;
+                box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+                position: absolute;  
+            }
+        </style>
+
+    </head>
+    <body style="font-family:Arial, Helvetica, sans-serif" class='hide overflow-x-hidden' ng-controller='home'>
+        <nav class='w-screen p-4 inline-flex shadow' style='background: #f2fbfe'>
+            <img src='../../img\Q_Ak8MlI_400x400.jpg' class='w-12 h-12 mx-4 rounded'>
+            <div class=''> 
+                <h1 class="font-extrabold">The City Council</h1>
+                <h1 class='text-green-500 font-bold'>Fault/Complaints Management</h1>
+            </div>
+            <div class="relative my-4 font-bold mx-64" style='color:#68696a'>
+                <a href='../../' class='mx-'>Home</a>
+                <a class='mx-4 add-team-btn requestPdf'>Export to PDF</a>
+                <a href='../../logout/' class='mx-4'>Logout</a>
+            </div>
+        </nav>
+        <div class='inline-flex w-screen'>
+            <div class='bg-white shadow shadow-lg w-1/4 h-screen'>
+                <a href="../"  class='w-full border-b block font-bold p-4 px-8'>Citizen Reports</a>
+                <a href="../teams"  class='w-full border-b block font-bold p-4 px-8'>Manage Teams</a>
+                <a href=""  class='w-full border-b block font-bold p-4 px-8 text-red-500'>Reports</a>
+                <a href="../knowledge-base"  class='w-full border-b block font-bold p-4 px-8'>Manage Knowledge Base</a>
+                <a href="../../leaflet/"  class='w-full border-b block font-bold p-4 px-8'>Reports Map View</a>
+            </div>
+            <div class='w-3/4 p-8 m-4'>
+                <div class='border rounded m-auto w-full shadow shadow-lg bg-white p-4 rounded rounded-lg'>
+                    <label class='text-gray-500'>Report from</label>
+                <input type='text' class='mx-4 border rounded shadow-inner text-gray-400 p-4' id='datepickerfrom'>
+                <label class='text-gray-500'>Report till</label>
+                <input type='text' class='mx-4 border rounded shadow-inner text-gray-400 p-4' id='datepickerto'><a href='#' class='underline renewReport m-auto  p-4 rounded'>{{prompt}}</a>
+                <table class=' rounded m-4 w-full'>
+                    <tr class='p-4 border-b font-bold'>
+                        <td class='p-4'>Report Summary</td>
+                        <td class='p-4'></td>
+                        <td class='p-4'></td>
+                    </tr>
+                    <tr class="w-full p-4">
+                        <td class='p-2'>Total Reports Received</td>
+                        <td class='p-2 text-center'>{{reports}}</td>
+                    </tr>
+                    <tr class="w-full p-4">
+                        <td class='p-2'>Total Reports Cleared</td>
+                        <td class='p-2 text-center'>{{cleared}}</td>
+                    </tr>
+                    <tr class="w-full p-4">
+                        <td class='p-2'>Total Outstanding</td>
+                        <td class='p-2 text-center'>{{outstanding}}</td>
+                    </tr>
+                    <tr class="w-full p-4">
+                        <td class='p-2'>Average Reports a Day</td>
+                        <td class='p-2 text-center'>{{average}}</td>
+                        <td><a class='text-red-400 underline' ng-click='showReportsGraph()' ng-if='average>0'>View Graph</a></td>
+                    </tr>
+                    <tr class="w-full p-4">
+                        <td class='p-2'>Average Clearances a Day</td>
+                        <td class='p-2 text-center'>{{averageClearances}}</td>
+                        <td><a class='text-red-400  text-center underline' ng-click='showClearanceReport()' ng-if='averageClearances>0'>View Graph</a></td>
+                    </tr>
+                    <tr class="w-full p-4">
+                        <td class='p-2'>Knowledge article reads</td>
+                        <td class='p-2 text-center'>{{totalReads}}</td>
+                        <td class='p-2'><a class='text-green-400 underline text-center'><i class='fa fa-angle-down' id='expand'></i></a>
+                        </td>
+                    </tr>
+                </div>
+
+                </table>
+                <div class='hidden expand-report'>
+                    <table class='border rounded shadow m-4 w-full'>
+                        <tr class=''>
+                            <td class="underline px-16 font-bold text-center">Article Title</td>
+                            <td class="underline px-16 font-bold text-center">Article Reads</td>
+                        </tr>
+                        <tr ng-repeat='a in articles'>
+                            <td class='px-16 text-center'>{{a.articleTitle}}</td>
+                            <td class="px-16 text-center">{{a.readsNum}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class='absolute w-1/2 height-1/2 p-4 shadow shadow-lg z-100 bg-white rounded rounded-lg top-10 left-1/4 hidden reports-graph'>
+                    <div class='w-full p-4 text-white font-bold  bg-blue-300'>Reports per day <a href='#' class='text-red-400 relative right-0 mx-8 close'>Close</a></div> 
+                    <canvas id='byDay' width='500' height='300'></canvas>
+                </div>
+                <div class='absolute w-1/2 height-1/2 p-4 shadow shadow-lg z-100 bg-white rounded rounded-lg top-10 left-1/4 hidden reports-graph1'>
+                    <div class='w-full p-4 text-white font-bold  bg-blue-300'>Clearances per day <a href='#' class='text-red-400 relative right-0 mx-8 close'>Close</a></div>
+                    <canvas id='byDay1'></canvas>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            let app = angular.module('reports', ['ngRoute', 'ngResource'])
+            app.controller('home', function($scope){
+                $scope.reports = 0;
+                $scope.cleared = 0;
+                $scope.outstanding = 0;
+                $scope.average = 0;
+                $scope.averageClearances = 0;
+                $scope.totalReads = 0
+                $scope.prompt = 'Generate'
+                $scope.articles = []
+                $scope.showReportsGraph = function(){
+                    $('.reports-graph').show();
+                }
+                $scope.showClearanceReport = function(){
+                    $('.reports-graph1').show();
+                }
+                $(document).ready(function(){
+                    $(function(){
+                        $('#datepickerto').datepicker({
+                            maxDate: 'today',
+                            minDate: new Date('02/02/2022')
+                        })
+                        $('#datepickerfrom').datepicker({
+                            maxDate: 'today',
+                            minDate: new Date('02/02/2022')
+                        })
+                    })
+                })
+                $('.close').click(function(){
+                    $('.reports-graph').hide()
+                    $('.reports-graph1').hide();
+                })
+                $('#expand').click(function(){
+                    console.log(0)
+                    if($('.expand-report').is(':hidden')){
+                        $('.expand-report').fadeIn('slow')
+                        $('#expand').attr('class', 'fa fa-angle-up')
+                    }
+                    else{
+                        $('.expand-report').fadeOut('slow')
+                        $('#expand').attr('class', 'fa fa-angle-down')
+                    }
+                })
+                $('.requestPdf').click(function(){
+                    let from = $('#datepickerfrom').val()
+                    let uptill = $('#datepickerto').val()
+                    window.location = '../../fpdf/?from='+from+'&to='+uptill;
+                })
+                $('.renewReport').click(function(){
+                    $scope.$apply(function(){
+                        $scope.prompt = 'Generating..'
+                    })
+                    let from = $('#datepickerfrom').val()
+                    let uptill = $('#datepickerto').val()
+                    $.ajax({
+                        url: 'api.php',
+                        method: 'POST',
+                        data: {
+                            from: from,
+                            date_to: uptill
+                        }, success: function(res){
+                            console.log(res);
+                            $scope.$apply(function(){
+                                $scope.prompt = 'Generate'
+                                $scope.totals = res
+                            })
+                            $scope.$apply(function(){
+                                res = JSON.parse(res)
+                                console.log(res)
+                                $scope.reports = res.totals[0].total
+                                $scope.cleared = res.totals[0].cleared_num
+                                $scope.outstanding = res.totals[0].pending_num
+                                let reportedDataset = res.reported;
+                                let dateDiff = Math.abs(new Date(uptill) - new Date(from))
+                                dateDiff = Math.ceil(dateDiff / (1000*60*60*24))
+                                console.log(dateDiff)
+                                $scope.average = Math.ceil(parseInt($scope.reports) / dateDiff)
+                                $scope.averageClearances = Math.ceil(Math.ceil(parseInt($scope.cleared) / dateDiff))
+                                $scope.totalReads = res.story.totalReads;
+                                $scope.articles = res.story.breakDown
+                                let clearedDataset = res.cleared;
+                                let x = [];
+                                let y = [];
+                                let y_p = [];
+                                let x_p = [];
+                                for(let i = 0; i<reportedDataset.length; i++){
+                                    x.push(reportedDataset[i].date);
+                                    y.push(reportedDataset[i].total_reported);
+                                }
+                                for(let i = 0; i<clearedDataset.length; i++){
+                                    x_p.push(clearedDataset[i].date_cleared);
+                                    y_p.push(clearedDataset[i].total_cleared);
+                                }
+                                console.log(x, y)
+                                console.log(x_p, y_p)
+                                let ctx1 = $('#byDay');
+                                var data = {
+                                    labels: x,
+                                    datasets: [{
+                                        label: 'Reports received by day',
+                                        data: y,
+                                        fillColor: "rgba(220, 220, 220, 0.2)",
+                                        strokeColor: "rgba(220, 220, 220, 1)",
+                                        backgroundColor: "rgba(0,0,255)",
+                                        borderColor: "rgba(0,0,255)"
+                                    }]
+                                }
+                                let options = {
+                                    responsive: true,
+                                    fill: false,
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                        fontColor: '#333',
+                                        fontSize: 16
+                                    },
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }],
+                                        xAxes: [{
+                                            barPercentage: 0.1
+                                        }]
+                                    }
+                                }
+                            }
+                            let ctx2 = $('#byDay1');
+                                var data2 = {
+                                    labels: x_p,
+                                    datasets: [{
+                                        label: 'Clearances done by day',
+                                        data: y_p,
+                                        fillColor: "rgba(220, 220, 220, 0.2)",
+                                        strokeColor: "rgba(220, 220, 220, 1)",
+                                        backgroundColor: "rgba(0,0,255)",
+                                        borderColor: "rgba(0,0,255)"
+                                    }]
+                                }
+                                let options2 = {
+                                    responsive: true,
+                                    fill: false,
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                        fontColor: '#333',
+                                        fontSize: 16
+                                    },
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }],
+                                        xAxes: [{
+                                            barPercentage: 0.1
+                                        }]
+                                    }
+                                }
+                            }
+                            let chart = new Chart(ctx1, {
+                                type: 'bar',
+                                data: data,
+                                options: options
+                             })
+                             let chart1 = new Chart(ctx2, {
+                                type: 'bar',
+                                data: data2,
+                                options: options2
+                             })
+                            })
+                        }, error: function(err){
+                            alert('HTTP ERROR ')
+                        }
+                    })
+                })
+            })
+        </script>

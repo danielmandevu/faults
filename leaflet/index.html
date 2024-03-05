@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href='../css/tailwind.css' rel='stylesheet' type='text/css'>
+        <link href='../css/fontawesome/css/all.min.css' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="src/leaflet.css" />
+        <script src="src/leaflet.js"></script>
+        <script src='../js/jquery/jquery.min.js'></script>
+    </head>
+    <body>
+        <nav class='w-screen p-4 inline-flex shadow' style='background: #f2fbfe'>
+            <img src='../img\Q_Ak8MlI_400x400.jpg' class='w-12 h-12 mx-4 rounded'>
+            <div class=''>
+                <h1 class="font-extrabold">The City Council</h1>
+                <h1 class='text-green-500 font-bold'>Fault/Complaints Management</h1>
+            </div>
+            <div class="relative my-4 font-bold mx-64" style='color:#68696a'>
+                <a href='../' class='mx-4'>Home</a>
+                <a href='#' class='mx-4' onclick='history.back(1)'>Back</a>
+            </div>
+        </nav>
+        <div id ='map' style='height: 520px'></div>
+    </body>
+    <script>
+        let myMap = L.map('map').setView([-11.4508,34.0154], 13);
+        let locations = []
+        $.ajax({
+            url: '../submissions/submit/api.php?read',
+            method: 'GET',
+            success: function(res){
+                res = JSON.parse(res)
+                for(let i in res){
+                    if(res[i].latitude && res[i].longtitude){
+                        locations.push([res[i].latitude, res[i].longtitude])
+                    }
+                }
+                buildMap(locations)
+            },
+            error: function(err){
+                alert('HTTP ERROR '+err.status)
+            }
+        })
+        let buildMap = function(locations){
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2l0YXlhbWlrYW5pIiwiYSI6ImNrd2Q3bjYyZDBncm8ybm50Zjg1MTNkMTUifQ.W2CvYapvROrfGzxGIv2Vqg', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox/streets-v11',
+                tileSize: 512,
+                zoomOffset: -1,
+                accessToken: 'pk.eyJ1Ijoic2l0YXlhbWlrYW5pIiwiYSI6ImNrd2Q3bjYyZDBncm8ybm50Zjg1MTNkMTUifQ.W2CvYapvROrfGzxGIv2Vqg'
+            }).addTo(myMap);
+            var marker;
+            for (let i = 0; i<locations.length; i++){
+                let locale = locations[i]
+                marker = L.marker(locale).addTo(myMap)
+            }
+            marker.bindPopup("<b>Report number</b><br>Report Title/Location").openPopup()
+                myMap.on('click', function(e){
+                console.log(e.latlng)
+            })
+        }
+    </script>
+</html>

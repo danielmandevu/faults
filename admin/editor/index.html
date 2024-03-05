@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href='../../css/tailwind.css' rel='stylesheet' type='text/css'>
+        <link href='../../css/fontawesome/css/all.min.css' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="../../js/richtexteditor/rte_theme_default.css" />
+        <script type="text/javascript" src="../../js/richtexteditor/rte.js"></script>
+        <script type="text/javascript" src='../../js/richtexteditor/plugins/all_plugins.js'></script>
+        <script type="text/javascript" src='../../js/jquery/jquery.min.js'></script>
+    </head>
+    <body>
+        <nav class='w-screen p-4 inline-flex' style='background: #f2fbfe;'>
+            <img src='../../img/Q_Ak8MlI_400x400.jpg' class='w-16 h-16 rounded-full'>
+            <div class='my-2'>
+                <h1 class="font-extrabold">The City Council</h1>
+                <h1 class='text-green-500 font-bold'>Fault/Complaints Management</h1>
+            </div>
+            <div class="relative left-2/4 my-4 font-bold">
+                <button class='mx-8 p-4 save'><i class='fa fa-save text-red-500'></i>&nbsp;Save Article</button>
+                <a href='../../logout/' class='mx-8 p-4'>Logout</button>
+            </div>
+        </nav>
+        <div class='inline-flex w-screen'>
+            <div class='bg-gray-600 text-white h-screen'>
+                <a href='../' class='w-full border-b block font-bold p-4'><i class='fa fa-list text-red-500 mx-2'></i></a>
+                <a href='../teams/' class='w-full border-b block font-bold p-4'><i class='fa fa-users text-red-500 mx-2'></i></a>
+                <a href='../reports/' class='w-full border-b block font-bold p-4'><i class='fa fa-th-large text-red-500 mx-2'></i></a>
+                <a href='../knowledge-base/' class='w-full border-b text-red-500  block font-bold p-4'><i class='fa fa-book text-red-500 mx-2'></i></a>
+                <a href='../../leaflet/' class='w-full border-b block font-bold p-4'><i class='fa fa-map-pin text-red-500 mx-2'></i></a>
+            </div>
+            <div id="div_editor1" class='mx-auto' style="width: 75%">
+        </div>
+        </div>
+    </body>
+    <script>
+	    var editor1 = new RichTextEditor("#div_editor1");
+        $('.save').click(function(){
+            let articleTitle = prompt('Enter article title');
+            let content = editor1.getHTMLCode();
+            $.ajax({
+                url: 'save.php',
+                method: 'post',
+                data: {
+                    'articleTitle': articleTitle,
+                    'content': content
+                },
+                success: function(res){
+                    alert(res)
+                },
+                error: function(err){
+                    alert('HTTP ERROR')
+                }
+            })
+        })
+	    //editor1.setHTMLCode("Use inline HTML or setHTMLCode to init the default content.");
+    </script>

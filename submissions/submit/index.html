@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Report Fault/Complaint
+        </title>
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <link rel='stylesheet' type='text/css' href='../../css/tailwind.css'>
+        <link rel='stylesheet' type='text/css' href='../../css/fontawesome/css/all.min.css'>
+        <script src='../../js/jquery/jquery.js'></script>
+
+    </head>
+    <body class='overflow-hidden'>
+        <nav class='w-screen bg-white border p-4 inline-flex'>
+            <img src='../../img/Q_Ak8MlI_400x400.jpg' class='h-16 m-2 rounded-full'>
+            <div class='font-bold my-2'>
+                <h1 class='text-center text-2xl font-extrabold'>The City Council</h1>
+                <h1 class='text-center'>Fault/Complaints Reporting</h1>
+            </div>
+        </nav>
+        <div class='w-screen my-8'>
+            <div class='m-auto border rounded w-1/2 p-8 shadow-lg'>
+                <h1 class='text-2xl text-red-500'>Fill details of fault below</h1>
+                <form>
+                    <label class='text-gray-400 block m-4'>Select category of report</label>
+                    <select id='category' class='border rounded shadow block m-4 w-full p-2'>
+                        <option value='dumped-rubbish'>Dumped Rubbish</option>
+                        <option value='illegal-vending'>Illegal Vending</option>
+                        <option value='plot-demarcation'>Plot Demarcation</option>
+                    </select>
+                    <input id='neighbourhood' type='text' class='block border rounded shadow m-4 w-full p-2' placeholder="Enter neighbourhood complaint located">
+                    <textarea id='localeDesc' class='block border rounded shadow m-4 m-4 w-full p-2' placeholder="Describe the area i.e. landmarks, things close to."></textarea>
+                    <input id='submit' type='submit border rounded shadow' class='text-center block border bg-green-300 rounded font-bold text-white m-4 p-4' value='Submit Report'/>        
+                </form>
+            </div>
+        </div>
+        <div class='w-full bg-black text-white absolute bottom-0 p-2 inline-flex'>
+            <h1 class='my-2'>We get your geographic location to submit this report for easy locating of fault by our response team</h1>
+            <button class="text-red-500 border rounded" style="position: relative; right:60%"><i class='fa fa-user'></i> Close</button>
+        </div>
+    </body>
+    <script>
+        let latitude, longitude
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(function(location){
+                let coords = location.coords
+                console.log(coords)
+                if(coords.latitude && coords.longitude){
+                    latitude = coords.latitude
+                    longitude = coords.longitude
+                }
+            }, function(err){
+                console.log(err);
+            })
+        }
+        $('#submit').click(function(evt){
+            evt.preventDefault()
+            $.ajax({
+            url: 'api.php',
+            method: 'post',
+            data: {
+                latitude: latitude,
+                longitude: longitude,
+                category: $('#category').val(),
+                neighbourhood: $('#neighbourhood').val(),
+                localeDes: $('#localeDesc').val()
+            },
+            success: function(res){
+                alert(res)
+            },
+            error: function(err){
+                alert('HTTP ERROR '+err.status)
+            }
+        })
+        })
+        
+    </script>
+
+</html>
